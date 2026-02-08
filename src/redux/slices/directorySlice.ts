@@ -50,7 +50,7 @@ const directorySlice = createSlice({
     resetDirectory: (state) => {
       state.users = [];
       state.page = 1;
-      state.status: 'idle';
+      state.status = 'idle';
     },
   },
   extraReducers: (builder) => {
