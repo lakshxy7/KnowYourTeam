@@ -9,50 +9,43 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
-// Custom Imports
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { fetchUsers, resetDirectory } from '../redux/slices/directorySlice';
 import UserListItem from '../components/UserListItem';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
-// Define Navigation Prop Type
+
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'EmployeeDetails'>;
 
 const DirectoryScreen = () => {
   const dispatch = useAppDispatch();
   const navigation = useNavigation<NavigationProp>();
-  
-  // Select data from Redux
   const { users, page, status, error } = useAppSelector((state) => state.directory);
 
-  // Initial Load
+
   useEffect(() => {
     if (status === 'idle') {
       dispatch(fetchUsers(1));
     }
   }, [status, dispatch]);
 
-  // Handler: Load Next Page
+
   const handleLoadMore = () => {
     if (status !== 'loading') {
       dispatch(fetchUsers(page));
     }
   };
 
-  // Handler: Pull to Refresh
   const handleRefresh = useCallback(() => {
-    dispatch(resetDirectory()); // Clear list
-    dispatch(fetchUsers(1));    // Fetch fresh batch
+    dispatch(resetDirectory()); 
+    dispatch(fetchUsers(1));   
   }, [dispatch]);
 
-  // Handler: Navigate to Details
+
   const handleUserPress = (user: any) => {
-    // We pass the User ID (or the whole object if you prefer) to the next screen
-    navigation.navigate('EmployeeDetails', { userId: user.id });
+    navigation.navigate('EmployeeDetails', { user: user });
   };
 
-  // Render Footer (Loader)
   const renderFooter = () => {
     if (status === 'loading' && users.length > 0) {
       return (

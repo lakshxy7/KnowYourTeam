@@ -7,11 +7,11 @@ import DirectoryScreen from '../screens/DirectoryScreen';
 import DepartmentScreen from '../screens/DepartmentScreen';
 import MyTeamScreen from '../screens/MyTeamScreen';
 import EmployeeDetailsScreen from '../screens/EmployeeDetailScreen';
-
+import { User } from '../types'; 
 
 export type RootStackParamList = {
   MainTabs: undefined;
-  EmployeeDetails: { userId: string }; 
+  EmployeeDetails: { user: User }; 
 };
 
 export type TabParamList = {
@@ -19,6 +19,7 @@ export type TabParamList = {
   Departments: undefined;
   MyTeam: undefined;
 };
+
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
