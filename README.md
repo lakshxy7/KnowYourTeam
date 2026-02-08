@@ -1,97 +1,132 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+Here is a comprehensive, portfolio-ready README.md. It highlights the full scope of the application, including the new Project Management module, and explains the architectural decisions clearly.
+KnowYourTeam 📱
 
-# Getting Started
+KnowYourTeam is a production-grade corporate employee directory and project management application. It bridges the gap between finding colleagues and organizing them into functional teams.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+The app features a robust Offline-First architecture, ensuring that critical contact information and project details are available even without an internet connection.
+🚀 Features
+📖 Corporate Directory
 
-## Step 1: Start Metro
+    Infinite Scroll: Efficiently browses thousands of employees using paginated API requests.
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+    Smart Search: Client-side filtering by Name or Department.
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+    Offline Mode: Detects network loss and serves cached data automatically, preventing data wipes on refresh.
 
-```sh
-# Using npm
+📂 Project Management (New!)
+
+    Create Projects: Define new initiatives with a Name, Manager, and Description.
+
+    Team Builder: Search and add members to a project, assigning specific roles (e.g., "Frontend Dev", "QA").
+
+    One-Tap Communication: Email the entire project team instantly with a pre-filled subject line.
+
+❤️ Personalization
+
+    My Team: A persisted "Favorites" list to keep close contacts accessible.
+
+    Department Filtering: Dedicated grid view to browse employees by specific verticals (Engineering, Sales, Marketing).
+
+📞 Quick Actions
+
+    Deep Linking: Integration with native Phone and Mail apps.
+
+    Smart Fallback: Tries to open Gmail specifically; falls back to the system default mail app if unavailable.
+
+🛠 Tech Stack & Rationale
+Technology	Purpose	Why I chose it
+React Native (CLI)	Framework	Provides full control over native modules and build configurations.
+TypeScript	Language	Ensures type safety for API responses and Redux state, reducing runtime errors.
+Redux Toolkit	State	Simplifies complex state logic (Slices) and async data fetching (Thunks).
+Redux Persist	Storage	Persists the Directory, Team, and Project lists to AsyncStorage for offline access.
+React Navigation	Routing	Industry standard for handling complex nested navigators (Tabs inside Stack).
+NetInfo	Network	Monitors connectivity to trigger "Offline Mode" UI states.
+📂 Project Structure
+
+The project follows a scalable src architecture to separate concerns, making it easy for teams to collaborate.
+Plaintext
+
+src/
+├── assets/         # Images and Icons (PNGs)
+├── components/     # Reusable UI (UserListItem, InfoRow)
+├── navigation/     # Stack & Tab Navigators configuration
+├── redux/          # Global State Management
+│   ├── slices/     # Feature-based logic (directory, projects, team)
+│   ├── hooks.ts    # Typed hooks (useAppDispatch, useAppSelector)
+│   └── store.ts    # Store configuration & Persistence setup
+├── screens/        # Main Application Screens
+│   ├── CreateProjectScreen.tsx  # Form with User Picker Modal
+│   ├── DirectoryScreen.tsx      # Infinite Scroll List
+│   └── ...
+├── services/       # API Configuration (Axios instance)
+├── types/          # TypeScript Interfaces (User, Project, API Response)
+└── utils/          # Helper functions
+
+⚙️ Installation & Setup
+Prerequisites
+
+    Node.js > 18
+
+    Watchman
+
+    iOS: Xcode & CocoaPods
+
+    Android: Android Studio & JDK 17
+
+Step 1: Clone & Install
+Bash
+
+git clone https://github.com/lakshxy7/KnowYourTeam.git
+cd KnowYourTeam
+npm install
+
+Step 2: iOS Dependencies (Mac Only)
+Bash
+
+cd ios
+pod install
+cd ..
+
+Step 3: Run the App
+
+Start Metro Bundler:
+Bash
+
 npm start
 
-# OR using Yarn
-yarn start
-```
+Run on iOS Simulator:
+Bash
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
 npm run ios
 
-# OR using Yarn
-yarn ios
-```
+Run on Android Emulator:
+Bash
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+npm run android
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+🧠 Key Architectural Decisions
+1. Robust Offline Handling
 
-## Step 3: Modify your app
+Instead of simply showing an error when the API fails, the app uses Redux Persist combined with NetInfo.
 
-Now that you have successfully run the app, let's make changes!
+    Logic: If NetInfo detects no connection, the "Pull-to-Refresh" action is blocked to prevent wiping the existing list. A banner notifies the user they are viewing cached data.
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+2. Atomic Commits & Data Consistency
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+The app uses a strict Redux flow. The projectsSlice manages its own state array. When a user is added to a project, we don't duplicate their full profile data unnecessarily; we reference their User object, ensuring that if their avatar updates in the future (v2 feature), it reflects across the app.
+3. Native Intent Queries (Android 11+)
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+To ensure the "Email" and "Phone" features work on modern Android devices, the AndroidManifest.xml includes specific <queries> blocks. This allows the app to inspect if Gmail or a Dialer is installed before attempting to open them.
+🔮 Future Improvements
 
-## Congratulations! :tada:
+    Edit Projects: Allow changing the manager or removing members after creation.
 
-You've successfully run and modified your React Native App. :partying_face:
+    User Avatars: Implement image uploading (currently uses RandomUser API URLs).
 
-### Now what?
+    Dark Mode: Implement a theme context to support system dark mode preferences.
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+    Unit Testing: Add Jest tests for the projectSlice reducers to verify role assignment logic.
 
-# Troubleshooting
+📜 License
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+This project is open-source and available under the MIT License.
