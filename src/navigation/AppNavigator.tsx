@@ -1,14 +1,21 @@
 import React from 'react';
-import { Text } from 'react-native'; 
+import { Image } from 'react-native'; // <--- 1. Import Image
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+// Screens
 import DirectoryScreen from '../screens/DirectoryScreen';
 import DepartmentScreen from '../screens/DepartmentScreen';
 import MyTeamScreen from '../screens/MyTeamScreen';
 import EmployeeDetailsScreen from '../screens/EmployeeDetailScreen';
 import DepartmentListScreen from '../screens/DepartmentListScreen';
 import { User } from '../types'; 
+
+// 2. Import your Icons
+const iconHome = require('../assets/icons/home.png');
+const iconDept = require('../assets/icons/department.png');
+const iconTeam = require('../assets/icons/team.png');
 
 export type RootStackParamList = {
   MainTabs: undefined;
@@ -22,9 +29,9 @@ export type TabParamList = {
   MyTeam: undefined;
 };
 
-
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
+
 const BottomTabs = () => {
   return (
     <Tab.Navigator
@@ -32,13 +39,29 @@ const BottomTabs = () => {
         headerShown: true, 
         tabBarActiveTintColor: '#007AFF',
         tabBarInactiveTintColor: 'gray',
+        // 3. Update the Icon Logic
         tabBarIcon: ({ focused, color, size }) => {
-          let icon = '❓';
-          if (route.name === 'Directory') icon = '🏠';
-          if (route.name === 'Departments') icon = '🏢';
-          if (route.name === 'MyTeam') icon = '❤️';
+          let iconSource;
+
+          if (route.name === 'Directory') {
+            iconSource = iconHome;
+          } else if (route.name === 'Departments') {
+            iconSource = iconDept;
+          } else if (route.name === 'MyTeam') {
+            iconSource = iconTeam;
+          }
           
-          return <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.5 }}>{icon}</Text>;
+          return (
+            <Image 
+              source={iconSource} 
+              style={{ 
+                width: 24, 
+                height: 24, 
+                tintColor: color // <--- This applies the Blue/Gray color automatically
+              }} 
+              resizeMode="contain"
+            />
+          );
         },
       })}
     >
@@ -49,19 +72,15 @@ const BottomTabs = () => {
   );
 };
 
-
 const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="MainTabs">
-  
         <Stack.Screen 
           name="MainTabs" 
           component={BottomTabs} 
           options={{ headerShown: false }} 
         />
-        
-    
         <Stack.Screen 
           name="EmployeeDetails" 
           component={EmployeeDetailsScreen} 
@@ -70,11 +89,10 @@ const AppNavigator = () => {
             headerBackTitle: 'Back', 
           }} 
         />
-
         <Stack.Screen 
-        name="DepartmentList" 
-        component={DepartmentListScreen} 
-        options={({ route }) => ({ title: route.params.department })} 
+          name="DepartmentList" 
+          component={DepartmentListScreen} 
+          options={({ route }) => ({ title: route.params.department })} 
         />
       </Stack.Navigator>
     </NavigationContainer>
