@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { 
   View, 
   FlatList, 
@@ -9,22 +9,30 @@ import {
   TextInput,
   Alert
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useScrollToTop } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNetInfo } from '@react-native-community/netinfo';
+import { useNetInfo } from '@react-native-community/netinfo'; 
+
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { fetchUsers, resetDirectory } from '../redux/slices/directorySlice';
 import UserListItem from '../components/UserListItem';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { DirectoryStackParamList } from '../navigation/AppNavigator'; // Updated import if needed, or keep RootStackParamList
 import { User } from '../types';
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'EmployeeDetails'>;
+// Updated to use the new nested stack param list
+type NavigationProp = NativeStackNavigationProp<DirectoryStackParamList, 'DirectoryMain'>;
 
 const DirectoryScreen = () => {
   const dispatch = useAppDispatch();
   const navigation = useNavigation<NavigationProp>();
   const netInfo = useNetInfo(); 
   
+  // 1. Create a Ref for the list
+  const ref = useRef<FlatList>(null);
+
+  // 2. Hook to scroll to top when tab is tapped
+  useScrollToTop(ref);
+
   const { users, page, status, error } = useAppSelector((state) => state.directory);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -112,6 +120,7 @@ const DirectoryScreen = () => {
         <TextInput
           style={styles.searchInput}
           placeholder="Search by name or department..."
+          placeholderTextColor="#666" 
           value={searchQuery}
           onChangeText={setSearchQuery}
           clearButtonMode="while-editing"
@@ -120,6 +129,7 @@ const DirectoryScreen = () => {
       </View>
 
       <FlatList
+        ref={ref} // 3. Attach the Ref
         data={filteredUsers}
         keyExtractor={(item) => item.id} 
         renderItem={({ item }) => (
@@ -161,7 +171,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     fontSize: 16,
-    color: '#333',
+    color: '#000', 
   },
 
   offlineBanner: {
