@@ -1,17 +1,25 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
+import { View, Text } from 'react-native';
+import { useAppDispatch, useAppSelector } from '../redux/hooks'; 
+import { fetchUsers } from '../redux/slices/directorySlice';
 
 const DirectoryScreen = () => {
+  // ✅ usage of typed hooks
+  const dispatch = useAppDispatch(); 
+  const { users, status } = useAppSelector((state) => state.directory);
+
+  useEffect(() => {
+    if (status === 'idle') {
+      dispatch(fetchUsers(1)); 
+    }
+  }, [dispatch, status]);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>🏠 Directory (Tab 1)</Text>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Directory Screen</Text>
+      <Text>Users Loaded: {users.length}</Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F5FCFF' },
-  text: { fontSize: 20, fontWeight: 'bold' },
-});
 
 export default DirectoryScreen;
