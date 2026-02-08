@@ -1,8 +1,16 @@
 import React, { useLayoutEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { 
+  View, 
+  Text, 
+  Image, 
+  StyleSheet, 
+  TouchableOpacity, 
+  ScrollView, 
+  Alert,
+  Linking, 
+  Platform 
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-
-// Redux
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import { addToTeam, removeFromTeam } from '../redux/slices/teamSlice';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -13,12 +21,10 @@ const EmployeeDetailScreen = ({ route, navigation }: Props) => {
   const { user } = route.params;
   const dispatch = useAppDispatch();
   
-  // Check if user is already saved
   const isSaved = useAppSelector((state) => 
     state.team.savedUsers.some((saved) => saved.id === user.id)
   );
 
-  // Set Header Title dynamically
   useLayoutEffect(() => {
     navigation.setOptions({ title: `${user.firstName} ${user.lastName}` });
   }, [navigation, user]);
@@ -33,6 +39,44 @@ const EmployeeDetailScreen = ({ route, navigation }: Props) => {
     }
   };
 
+  const handleEmailPress = async () => {
+    const email = user.email;
+    const gmailUrl = `googlegmail://co?to=${email}`;
+    const mailtoUrl = `mailto:${email}`;
+
+    try {
+      const isGmailSupported = await Linking.canOpenURL(gmailUrl);
+
+      if (isGmailSupported) {
+        await Linking.openURL(gmailUrl);
+      } else {
+        await Linking.openURL(mailtoUrl);
+      }
+    } catch (err) {
+      console.log('Error opening email client:', err);
+      try {
+        await Linking.openURL(mailtoUrl);
+      } catch (e) {
+        Alert.alert("Error", "No email app available on this device.");
+      }
+    }
+  };
+
+  const handlePhonePress = () => {
+    const scheme = Platform.OS === 'ios' ? 'telprompt:' : 'tel:';
+    const url = `${scheme}${user.phone}`;
+    
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          Alert.alert("Error", "No phone app available");
+        }
+      })
+      .catch((err) => console.error('An error occurred', err));
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
@@ -43,9 +87,22 @@ const EmployeeDetailScreen = ({ route, navigation }: Props) => {
       </View>
 
       <View style={styles.infoSection}>
-        <InfoRow label="Email" value={user.email} />
-        <InfoRow label="Phone" value={user.phone} />
-        <InfoRow label="Location" value={`${user.city}, ${user.country}`} />
+        <InfoRow 
+          label="Email" 
+          value={user.email} 
+          onPress={handleEmailPress} 
+          isLink 
+        />
+        <InfoRow 
+          label="Phone" 
+          value={user.phone} 
+          onPress={handlePhonePress} 
+          isLink 
+        />
+        <InfoRow 
+          label="Location" 
+          value={`${user.city}, ${user.country}`} 
+        />
       </View>
 
       <TouchableOpacity 
@@ -60,25 +117,48 @@ const EmployeeDetailScreen = ({ route, navigation }: Props) => {
   );
 };
 
-// Helper Component for rows
-const InfoRow = ({ label, value }: { label: string; value: string }) => (
-  <View style={styles.row}>
-    <Text style={styles.label}>{label}</Text>
-    <Text style={styles.value}>{value}</Text>
-  </View>
-);
+interface InfoRowProps {
+  label: string;
+  value: string;
+  onPress?: () => void; 
+  isLink?: boolean;    
+}
+
+const InfoRow = ({ label, value, onPress, isLink }: InfoRowProps) => {
+  const Container = onPress ? TouchableOpacity : View;
+
+  return (
+    <Container onPress={onPress} style={styles.row}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.value, isLink && styles.linkValue]}>{value}</Text>
+    </Container>
+  );
+};
 
 const styles = StyleSheet.create({
   container: { flexGrow: 1, backgroundColor: '#fff', alignItems: 'center', padding: 20 },
   header: { alignItems: 'center', marginBottom: 30 },
-  avatar: { width: 120, height: 120, borderRadius: 60, marginBottom: 15 },
-  name: { fontSize: 24, fontWeight: 'bold', marginBottom: 5 },
-  role: { fontSize: 18, color: '#666', marginBottom: 5 },
-  dept: { fontSize: 16, color: '#007AFF', fontWeight: '600' },
+  avatar: { width: 120, height: 120, borderRadius: 60, marginBottom: 15, backgroundColor: '#eee' },
+  name: { fontSize: 24, fontWeight: 'bold', marginBottom: 5, textAlign: 'center' },
+  role: { fontSize: 18, color: '#666', marginBottom: 5, textAlign: 'center' },
+  dept: { fontSize: 16, color: '#007AFF', fontWeight: '600', marginBottom: 5 },
+  
   infoSection: { width: '100%', marginBottom: 30 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 15, borderBottomWidth: 1, borderColor: '#eee' },
+  
+  row: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    paddingVertical: 15, 
+    borderBottomWidth: 1, 
+    borderColor: '#eee',
+    alignItems: 'center' 
+  },
+  
   label: { fontSize: 16, color: '#888' },
-  value: { fontSize: 16, fontWeight: '500', color: '#333' },
+  
+  value: { fontSize: 16, fontWeight: '500', color: '#333', maxWidth: '70%', textAlign: 'right' },
+  linkValue: { color: '#007AFF', textDecorationLine: 'underline' }, 
+
   button: { width: '100%', padding: 15, borderRadius: 10, alignItems: 'center' },
   buttonAdd: { backgroundColor: '#007AFF' },
   buttonRemove: { backgroundColor: '#FF3B30' },
