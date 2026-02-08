@@ -22,3 +22,17 @@ export interface ApiResponse {
     results: number;
   };
 }
+
+export interface ProjectMember {
+  user: User;
+  role: string; 
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  manager: User;
+  members: ProjectMember[]; 
+  createdAt: number;
+}
