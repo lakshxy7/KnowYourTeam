@@ -1,9 +1,11 @@
 import React, { useLayoutEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image, Linking, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
+// Import ProjectsStackParamList instead of RootStackParamList
+import { ProjectsStackParamList } from '../navigation/AppNavigator';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'ProjectDetails'>;
+// Fix Type Definition
+type Props = NativeStackScreenProps<ProjectsStackParamList, 'ProjectDetails'>;
 
 const ProjectDetailsScreen = ({ route, navigation }: Props) => {
   const { project } = route.params;
@@ -13,12 +15,8 @@ const ProjectDetailsScreen = ({ route, navigation }: Props) => {
   }, [navigation, project]);
 
   const handleMailTeam = () => {
-    // Collect all emails
     const emails = [project.manager.email, ...project.members.map(m => m.user.email)];
-    const uniqueEmails = [...new Set(emails)]; // Remove duplicates
-    
-    // Construct Mailto Link
-    // Note: 'bcc' is often better for privacy, but 'to' works for teams.
+    const uniqueEmails = [...new Set(emails)]; 
     const url = `mailto:${uniqueEmails.join(',')}?subject=[${project.name}] Update`;
 
     Linking.openURL(url).catch(() => 
@@ -70,7 +68,6 @@ const styles = StyleSheet.create({
   avatar: { width: 40, height: 40, borderRadius: 20, marginRight: 15, backgroundColor: '#ddd' },
   userName: { fontSize: 16, fontWeight: 'bold', color: '#333' },
   userRole: { fontSize: 14, color: '#007AFF', fontWeight: '500' },
-  
   mailButton: { backgroundColor: '#34C759', padding: 18, borderRadius: 12, alignItems: 'center', marginTop: 10 },
   mailButtonText: { color: 'white', fontSize: 18, fontWeight: 'bold' }
 });
