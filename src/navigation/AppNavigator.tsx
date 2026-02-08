@@ -7,11 +7,13 @@ import DirectoryScreen from '../screens/DirectoryScreen';
 import DepartmentScreen from '../screens/DepartmentScreen';
 import MyTeamScreen from '../screens/MyTeamScreen';
 import EmployeeDetailsScreen from '../screens/EmployeeDetailScreen';
+import DepartmentListScreen from '../screens/DepartmentListScreen';
 import { User } from '../types'; 
 
 export type RootStackParamList = {
   MainTabs: undefined;
   EmployeeDetails: { user: User }; 
+  DepartmentList: { department: string };
 };
 
 export type TabParamList = {
@@ -67,6 +69,12 @@ const AppNavigator = () => {
             title: 'Profile',
             headerBackTitle: 'Back', 
           }} 
+        />
+
+        <Stack.Screen 
+        name="DepartmentList" 
+        component={DepartmentListScreen} 
+        options={({ route }) => ({ title: route.params.department })} 
         />
       </Stack.Navigator>
     </NavigationContainer>
